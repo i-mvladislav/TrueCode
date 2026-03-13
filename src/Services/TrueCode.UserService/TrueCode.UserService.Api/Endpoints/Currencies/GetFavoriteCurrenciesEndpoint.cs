@@ -1,4 +1,5 @@
-using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
+using TrueCode.Core.Queries;
 using TrueCode.UserService.Application.Currencies.Queries;
 
 namespace TrueCode.UserService.Api.Endpoints.Currencies;
@@ -11,28 +12,16 @@ public class GetFavoriteCurrenciesEndpoint : BaseEndpoint
     }
     
     private async Task<IResult> HandleGet(HttpContext ctx,
-        GetFavoriteCurrenciesQueryHandler queryHandler)
+        [FromServices] BaseQueryHandler<GetFavoriteCurrenciesQuery, List<string>> queryHandler,
+        [FromServices] ILogger<GetFavoriteCurrenciesEndpoint> logger)
     {
         if (ctx.User.Identity?.IsAuthenticated == false)
             return Results.Unauthorized();
         
-        var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        var query = new GetFavoriteCurrenciesQuery();
 
-        var command = new GetFavoriteCurrenciesQuery
-        {
-            UserId = new Guid(userId),
-        };
-
-        var result = await queryHandler.ExecuteAsync(command, ctx.RequestAborted);
-
-        if (!result.IsSuccess)
-        {
-            return Results.Json(new
-            {
-                Errors = result.Errors
-            });
-        }
-        
-        return Results.Json(result.Data);
+        return await ExecuteQueryAsync(query,
+            async qry => await queryHandler.ExecuteAsync(query, ctx.RequestAborted),
+            logger);
     }
 }

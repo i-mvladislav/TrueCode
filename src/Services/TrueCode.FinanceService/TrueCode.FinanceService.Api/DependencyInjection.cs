@@ -2,6 +2,8 @@ using System.Text;
 using Carter;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using TrueCode.Core.Users;
+using TrueCode.FinanceService.Api.Security;
 using TrueCode.FinanceService.Application;
 using TrueCode.FinanceService.Infrastructure;
 using TrueCode.FinanceService.Infrastructure.Configuration;
@@ -13,6 +15,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApiServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserContext, CurrentUserContext>();
         services.AddCarter();
         services.AddJobServices(configuration);
         services.AddHttpClients(configuration);

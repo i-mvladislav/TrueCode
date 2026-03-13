@@ -1,8 +1,8 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
-using TrueCode.FinanceService.Api.ResponseDtos;
+using TrueCode.Core.Queries;
+using TrueCode.Core.Users;
+using TrueCode.FinanceService.Application.Currencies.Models;
 using TrueCode.FinanceService.Application.Currencies.Queries.GetCurrenciesByUser;
-using TrueCode.UserService.HttpClients;
 
 namespace TrueCode.FinanceService.Api.Endpoints.Currencies;
 
@@ -13,36 +13,19 @@ public class GetCurrenciesByUserEndpoint : BaseEndpoint
         app.MapGet("api/users/currencies", HandleGet);
     }
     
-    private async Task<IResult> HandleGet([FromServices] GetCurrenciesByUserQueryHandler queryHandler, HttpContext ctx)
+    private async Task<IResult> HandleGet(
+        [FromServices] BaseQueryHandler<GetCurrenciesByUserQuery, List<Currency>> queryHandler, 
+        [FromServices] ILogger<GetCurrenciesByUserEndpoint> logger,
+        [FromServices] ICurrentUserContext userContext,
+        HttpContext ctx)
     {
-        var isAuthenticated = ctx.User.Identity?.IsAuthenticated ?? false;
-        if (!isAuthenticated || string.IsNullOrWhiteSpace(ctx.Request.Headers.Authorization))
+        if (!userContext.IsAuthenticated)
             return Results.Unauthorized();
-
-        var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-
-        var authorization = ctx.Request.Headers.Authorization!.First()!.Substring("Bearer ".Length);
-
-        var query = new GetCurrenciesByUserQuery
-        {
-            UserId = new Guid(userId),
-            JwtToken = authorization,
-        };
         
-        var result = await queryHandler.ExecuteAsync(query, ctx.RequestAborted);
-        
-        if (!result.IsSuccess)
-        {
-            return ErrorResponse(result.Errors);
-        }
-
-        var response = result.Data!.Select(c => new Currency
-        {
-            Id = c.Id,
-            Name = c.Name,
-            Rate = c.Rate,
-        }).ToList();
-        
-        return Results.Json(response);
+        var query = new GetCurrenciesByUserQuery();
+        return await ExecuteQueryAsync(
+            query,
+            async qry => await queryHandler.ExecuteAsync(qry, ctx.RequestAborted),
+            logger);
     }
 }

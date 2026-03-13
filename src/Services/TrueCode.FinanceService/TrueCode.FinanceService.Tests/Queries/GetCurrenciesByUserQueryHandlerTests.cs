@@ -1,6 +1,8 @@
 using System.Net;
 using Moq;
 using Refit;
+using TrueCode.Core.Users;
+using TrueCode.FinanceService.Application.Currencies.Models;
 using TrueCode.FinanceService.Application.Currencies.Queries.GetCurrenciesByUser;
 using TrueCode.FinanceService.Domain.Dao;
 using TrueCode.FinanceService.Domain.Entities;
@@ -26,12 +28,13 @@ public class GetCurrenciesByUserQueryHandlerTests
             It.IsAny<IEnumerable<string>>(),
             It.IsAny<CancellationToken>()));
 
-        var query = new GetCurrenciesByUserQuery
-        {
-            UserId = Guid.Empty,
-            JwtToken = "token",
-        };
-        var sut = new GetCurrenciesByUserQueryHandler(clientMock.Object, currencyStorageMock.Object);
+        var userContextMock = new Mock<ICurrentUserContext>();
+        userContextMock.SetupGet(s => s.IsAuthenticated).Returns(true);
+        userContextMock.SetupGet(s => s.UserId).Returns(Guid.Empty.ToString());
+        userContextMock.SetupGet(s => s.Authorization).Returns("Bearer token");
+
+        var query = new GetCurrenciesByUserQuery();
+        var sut = new GetCurrenciesByUserQueryHandler(clientMock.Object, currencyStorageMock.Object, userContextMock.Object);
         
         // Act
         var result = await sut.ExecuteAsync(query);
@@ -62,12 +65,14 @@ public class GetCurrenciesByUserQueryHandlerTests
             It.IsAny<IEnumerable<string>>(),
             It.IsAny<CancellationToken>()));
         
-        var query = new GetCurrenciesByUserQuery
-        {
-            UserId = Guid.NewGuid(),
-            JwtToken = "",
-        };
-        var sut = new GetCurrenciesByUserQueryHandler(clientMock.Object, currencyStorageMock.Object);
+        var userContextMock = new Mock<ICurrentUserContext>();
+        userContextMock.SetupGet(s => s.IsAuthenticated).Returns(true);
+        userContextMock.SetupGet(s => s.UserId).Returns(Guid.NewGuid().ToString());
+        userContextMock.SetupGet(s => s.Authorization).Returns("");
+        
+        var query = new GetCurrenciesByUserQuery();
+        
+        var sut = new GetCurrenciesByUserQueryHandler(clientMock.Object, currencyStorageMock.Object, userContextMock.Object);
         
         // Act
         var result = await sut.ExecuteAsync(query);
@@ -97,6 +102,16 @@ public class GetCurrenciesByUserQueryHandlerTests
             }
         ];
         
+        List<Currency> expectedCurrencies =
+        [
+            new()
+            {
+                Id = "AUD",
+                Name = "Австралийский доллар",
+                Rate = 56.3353M
+            }
+        ];
+        
         var clientMock = new Mock<ICurrenciesHttpClient>();
         clientMock.Setup(s => s.GetFavoriteCurrenciesAsync(
                 It.IsAny<Guid>(),
@@ -110,12 +125,14 @@ public class GetCurrenciesByUserQueryHandlerTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(currencies);
 
-        var query = new GetCurrenciesByUserQuery
-        {
-            UserId = Guid.NewGuid(),
-            JwtToken = "token",
-        };
-        var sut = new GetCurrenciesByUserQueryHandler(clientMock.Object, currencyStorageMock.Object);
+        var userContextMock = new Mock<ICurrentUserContext>();
+        userContextMock.SetupGet(s => s.IsAuthenticated).Returns(true);
+        userContextMock.SetupGet(s => s.UserId).Returns(Guid.NewGuid().ToString());
+        userContextMock.SetupGet(s => s.Authorization).Returns("Bearer token");
+        
+        var query = new GetCurrenciesByUserQuery();
+        
+        var sut = new GetCurrenciesByUserQueryHandler(clientMock.Object, currencyStorageMock.Object, userContextMock.Object);
         
         // Act
         var result = await sut.ExecuteAsync(query);
@@ -126,7 +143,7 @@ public class GetCurrenciesByUserQueryHandlerTests
             Assert.That(result.IsSuccess, Is.True);
             Assert.That(result.Data, Is.Not.Null);
             Assert.That(result.Errors, Is.Empty);
-            Assert.That(result.Data, Is.EquivalentTo(currencies));
+            Assert.That(result.Data, Is.EquivalentTo(expectedCurrencies));
         });
     }
 }

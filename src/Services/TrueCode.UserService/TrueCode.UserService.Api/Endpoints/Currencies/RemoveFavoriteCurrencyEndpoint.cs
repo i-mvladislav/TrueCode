@@ -1,5 +1,6 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using TrueCode.Core.Commands;
+using TrueCode.Core.Users;
 using TrueCode.UserService.Api.RequestDtos;
 using TrueCode.UserService.Application.Currencies.Commands.RemoveFavoriteCurrency;
 
@@ -14,29 +15,22 @@ public class RemoveFavoriteCurrencyEndpoint : BaseEndpoint
     
     private async Task<IResult> HandleDelete(HttpContext ctx,
         [FromBody] RemoveFavoriteCurrencyRequest request,
-        [FromServices] RemoveFavoriteCurrencyCommandHandler commandHandler)
+        [FromServices] BaseCommandHandler<RemoveFavoriteCurrencyCommand> commandHandler,
+        [FromServices] ICurrentUserContext userContext,
+        [FromServices] ILogger<RemoveFavoriteCurrencyEndpoint> logger)
     {
-        if (ctx.User.Identity?.IsAuthenticated == false)
+        if (!userContext.IsAuthenticated)
             return Results.Unauthorized();
-        
-        var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
         var command = new RemoveFavoriteCurrencyCommand
         {
-            UserId = new Guid(userId),
             Name = request.Name,
         };
 
-        var result = await commandHandler.ExecuteAsync(command, ctx.RequestAborted);
-
-        if (!result.IsSuccess)
-        {
-            return Results.Json(new
-            {
-                Errors = result.Errors
-            });
-        }
-        
-        return Results.Ok();
+        return await ExecuteCommandAsync(
+            command,
+            async cmd => await commandHandler.ExecuteAsync(command, ctx.RequestAborted),
+            logger
+        );
     }
 }

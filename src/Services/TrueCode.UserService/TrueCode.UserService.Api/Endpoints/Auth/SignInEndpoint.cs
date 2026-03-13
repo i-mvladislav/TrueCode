@@ -1,5 +1,8 @@
+using Microsoft.AspNetCore.Mvc;
+using TrueCode.Core.Commands;
 using TrueCode.UserService.Api.RequestDtos;
 using TrueCode.UserService.Application.Auth.Commands.SignIn;
+using TrueCode.UserService.Application.Auth.Models;
 
 namespace TrueCode.UserService.Api.Endpoints.Auth;
 
@@ -11,8 +14,9 @@ public class SignInEndpoint : BaseEndpoint
     }
     
     private async Task<IResult> HandlePost(HttpContext ctx,
-        SignInRequest request,
-        SignInCommandHandler commandHandler)
+        [FromBody] SignInRequest request,
+        [FromServices] BaseCommandHandler<SignInCommand, JwtToken> commandHandler,
+        [FromServices] ILogger<SignInEndpoint> logger)
     {
         var command = new SignInCommand
         {
@@ -20,13 +24,10 @@ public class SignInEndpoint : BaseEndpoint
             Password = request.Password
         };
 
-        var result = await commandHandler.ExecuteAsync(command, ctx.RequestAborted);
-
-        if (!result.IsSuccess)
-        {
-            return ErrorResponse(result.Errors);
-        }
-        
-        return Results.Json(result.Data);
+        return await ExecuteCommandAsync(
+            command,
+            async cmd => await commandHandler.ExecuteAsync(command, ctx.RequestAborted),
+            logger
+        );
     }
 }

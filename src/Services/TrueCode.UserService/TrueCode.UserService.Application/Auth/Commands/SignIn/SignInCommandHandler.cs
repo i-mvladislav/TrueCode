@@ -6,7 +6,7 @@ using TrueCode.UserService.Domain.Dao;
 
 namespace TrueCode.UserService.Application.Auth.Commands.SignIn;
 
-public sealed class SignInCommandHandler(IUserStorage userStorage, IJwtService jwtService) : BaseCommandHandler<SignInCommand, JwtToken>
+internal sealed class SignInCommandHandler(IUserStorage userStorage, IJwtService jwtService) : BaseCommandHandler<SignInCommand, JwtToken>
 {
     protected override async Task<CommandResult<JwtToken>> ExecuteCoreAsync(SignInCommand request, CancellationToken ct = default)
     {

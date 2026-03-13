@@ -1,4 +1,6 @@
-using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
+using TrueCode.Core.Commands;
+using TrueCode.Core.Users;
 using TrueCode.UserService.Api.RequestDtos;
 using TrueCode.UserService.Application.Currencies.Commands.AddFavoriteCurrency;
 
@@ -12,30 +14,23 @@ public class AddFavoriteCurrencyEndpoint : BaseEndpoint
     }
 
     private async Task<IResult> HandlePost(HttpContext ctx,
-        AddFavoriteCurrencyRequest request,
-        AddFavoriteCurrencyCommandHandler commandHandler)
+        [FromBody] AddFavoriteCurrencyRequest request,
+        [FromServices] BaseCommandHandler<AddFavoriteCurrencyCommand> commandHandler,
+        [FromServices] ICurrentUserContext userContext,
+        [FromServices] ILogger<AddFavoriteCurrencyEndpoint> logger)
     {
-        if (ctx.User.Identity?.IsAuthenticated == false)
+        if (!userContext.IsAuthenticated)
             return Results.Unauthorized();
         
-        var userId = ctx.User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-
         var command = new AddFavoriteCurrencyCommand
         {
-            UserId = new Guid(userId),
             Name = request.Name,
         };
 
-        var result = await commandHandler.ExecuteAsync(command, ctx.RequestAborted);
-
-        if (!result.IsSuccess)
-        {
-            return Results.Json(new
-            {
-                Errors = result.Errors
-            });
-        }
-        
-        return Results.Ok();
+        return await ExecuteCommandAsync(
+            command,
+            async cmd => await commandHandler.ExecuteAsync(cmd, ctx.RequestAborted),
+            logger
+        );
     }
 }

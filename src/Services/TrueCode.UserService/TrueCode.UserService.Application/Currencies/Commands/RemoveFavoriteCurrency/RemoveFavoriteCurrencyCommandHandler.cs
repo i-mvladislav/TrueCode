@@ -1,16 +1,17 @@
 using TrueCode.Core.Commands;
 using TrueCode.Core.Models;
+using TrueCode.Core.Users;
 using TrueCode.UserService.Domain.Dao;
 
 namespace TrueCode.UserService.Application.Currencies.Commands.RemoveFavoriteCurrency;
 
-public sealed class RemoveFavoriteCurrencyCommandHandler(ICurrencyStorage currencyStorage) : BaseCommandHandler<RemoveFavoriteCurrencyCommand>
+internal sealed class RemoveFavoriteCurrencyCommandHandler(ICurrencyStorage currencyStorage, ICurrentUserContext userContext) : BaseCommandHandler<RemoveFavoriteCurrencyCommand>
 {
     protected override async Task<CommandResult> ExecuteCoreAsync(RemoveFavoriteCurrencyCommand command, CancellationToken cancellationToken = default)
     {
         List<Error> errors = [];
 
-        if (command.UserId == Guid.Empty)
+        if (!Guid.TryParse(userContext.UserId, out var userId) || userId == Guid.Empty)
             errors.Add(new Error("Пользователь не найден."));
         
         if (string.IsNullOrWhiteSpace(command.Name))
@@ -19,7 +20,7 @@ public sealed class RemoveFavoriteCurrencyCommandHandler(ICurrencyStorage curren
         if (errors.Count > 0)
             return CommandResult.Failure(errors);
         
-        await currencyStorage.RemoveFavoriteCurrencyAsync(command.UserId, command.Name, cancellationToken);
+        await currencyStorage.RemoveFavoriteCurrencyAsync(userId, command.Name, cancellationToken);
         return CommandResult.Success();
     }
 }

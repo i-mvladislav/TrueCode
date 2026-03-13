@@ -1,35 +1,48 @@
 using System.Net;
 using TrueCode.Core.Models;
 using TrueCode.Core.Queries;
+using TrueCode.Core.Users;
+using TrueCode.FinanceService.Application.Currencies.Models;
 using TrueCode.FinanceService.Domain.Dao;
-using TrueCode.FinanceService.Domain.Entities;
 using TrueCode.UserService.HttpClients;
 
 namespace TrueCode.FinanceService.Application.Currencies.Queries.GetCurrenciesByUser;
 
-public class GetCurrenciesByUserQueryHandler(ICurrenciesHttpClient client, ICurrencyStorage currencyStorage) : BaseQueryHandler<GetCurrenciesByUserQuery, List<CurrencyEntity>>
+internal class GetCurrenciesByUserQueryHandler(
+    ICurrenciesHttpClient client,
+    ICurrencyStorage currencyStorage,
+    ICurrentUserContext userContext) : BaseQueryHandler<GetCurrenciesByUserQuery, List<Currency>>
 {
-    protected override async Task<QueryResult<List<CurrencyEntity>>> ExecuteCoreAsync(GetCurrenciesByUserQuery query, CancellationToken cancellationToken = default)
+    protected override async Task<QueryResult<List<Currency>>> ExecuteCoreAsync(GetCurrenciesByUserQuery query, CancellationToken cancellationToken = default)
     {
+        var jwtToken = !string.IsNullOrWhiteSpace(userContext.Authorization)
+            ? userContext.Authorization?["Bearer ".Length..]
+            : null;
         List<Error> errors = [];
         
-        if (query.UserId == Guid.Empty)
+        if (!Guid.TryParse(userContext.UserId, out var userId) || userId == Guid.Empty)
             errors.Add(new Error("Некорректный пользователь."));
         
-        if (string.IsNullOrWhiteSpace(query.JwtToken))
+        if (string.IsNullOrWhiteSpace(jwtToken))
             errors.Add(new Error("Некорректный токен."));
         
         if (errors.Count > 0)
-            return QueryResult<List<CurrencyEntity>>.Failure(errors);
+            return QueryResult<List<Currency>>.Failure(errors);
         
-        var response = await client.GetFavoriteCurrenciesAsync(query.UserId, query.JwtToken, cancellationToken);
+        var response = await client.GetFavoriteCurrenciesAsync(userId, jwtToken, cancellationToken);
         if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
-            return QueryResult<List<CurrencyEntity>>.Failure([new Error("Вы не авторизованы.")]);
+            return QueryResult<List<Currency>>.Failure([new Error("Вы не авторизованы.")]);
         }
         
-        var result = await currencyStorage.GetCurrenciesByCodesAsync(response.Content!, cancellationToken);
+        var currenciesEntities = await currencyStorage.GetCurrenciesByCodesAsync(response.Content!, cancellationToken);
+        var result = currenciesEntities.Select(ce => new Currency
+        {
+            Id = ce.Id,
+            Name = ce.Name,
+            Rate = ce.Rate,
+        }).ToList();
         
-        return QueryResult<List<CurrencyEntity>>.Success(result);
+        return QueryResult<List<Currency>>.Success(result);
     }
 }

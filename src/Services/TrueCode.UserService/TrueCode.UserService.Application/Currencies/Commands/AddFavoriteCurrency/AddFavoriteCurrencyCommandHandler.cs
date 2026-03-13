@@ -1,17 +1,18 @@
 using TrueCode.Core.Commands;
 using TrueCode.Core.Models;
+using TrueCode.Core.Users;
 using TrueCode.UserService.Domain.Dao;
 using TrueCode.UserService.Domain.Entities;
 
 namespace TrueCode.UserService.Application.Currencies.Commands.AddFavoriteCurrency;
 
-public sealed class AddFavoriteCurrencyCommandHandler(ICurrencyStorage currencyStorage) : BaseCommandHandler<AddFavoriteCurrencyCommand>
+internal sealed class AddFavoriteCurrencyCommandHandler(ICurrencyStorage currencyStorage, ICurrentUserContext userContext) : BaseCommandHandler<AddFavoriteCurrencyCommand>
 {
     protected override async Task<CommandResult> ExecuteCoreAsync(AddFavoriteCurrencyCommand request, CancellationToken cancellationToken = default)
     {
         List<Error> errors = [];
 
-        if (request.UserId == Guid.Empty)
+        if (!Guid.TryParse(userContext.UserId, out var userId) || userId == Guid.Empty)
             errors.Add(new Error("Некорректный пользователь."));
         
         if (string.IsNullOrWhiteSpace(request.Name))
@@ -22,7 +23,7 @@ public sealed class AddFavoriteCurrencyCommandHandler(ICurrencyStorage currencyS
 
         var entity = new FavoriteCurrencyEntity
         {
-            UserId = request.UserId,
+            UserId = userId,
             Code = request.Name,
         };
 

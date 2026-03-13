@@ -2,7 +2,9 @@ using System.Text;
 using Carter;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using TrueCode.Core.Users;
 using TrueCode.UserService.Api.Middlewares;
+using TrueCode.UserService.Api.Security;
 using TrueCode.UserService.Api.Services;
 using TrueCode.UserService.Application;
 using TrueCode.UserService.Application.Contracts;
@@ -16,6 +18,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApiServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserContext, CurrentUserContext>();
         services.AddAuth(configuration);
         services.AddCarter();
         services.AddSingleton<JwtBlacklistService>();

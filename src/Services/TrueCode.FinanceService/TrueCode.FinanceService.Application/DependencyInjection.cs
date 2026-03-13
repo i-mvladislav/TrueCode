@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using TrueCode.FinanceService.Application.Currencies;
+using TrueCode.Core.Queries;
+using TrueCode.FinanceService.Application.Currencies.Models;
 using TrueCode.FinanceService.Application.Currencies.Queries.GetCurrenciesByUser;
 using TrueCode.FinanceService.Application.Currencies.Queries.GetCurrenciesCodes;
 
@@ -10,8 +11,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddQueries(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddScoped<GetCurrenciesCodesQueryHandler>();
-        services.AddScoped<GetCurrenciesByUserQueryHandler>();
+        services.AddScoped<BaseQueryHandler<GetCurrenciesCodesQuery, List<string>>, GetCurrenciesCodesQueryHandler>();
+        services.AddScoped<BaseQueryHandler<GetCurrenciesByUserQuery, List<Currency>>, GetCurrenciesByUserQueryHandler>();
         
         return services;
     }

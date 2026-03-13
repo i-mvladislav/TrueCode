@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+using TrueCode.Core.Commands;
 using TrueCode.UserService.Api.RequestDtos;
 using TrueCode.UserService.Application.Auth.Commands.SignUp;
 
@@ -11,8 +13,9 @@ public class SignUpEndpoint : BaseEndpoint
     }
     
     private async Task<IResult> HandlePost(HttpContext ctx,
-        SignUpRequest request,
-        SignUpCommandHandler commandHandler)
+        [FromBody] SignUpRequest request,
+        [FromServices] BaseCommandHandler<SignUpCommand> commandHandler,
+        [FromServices] ILogger<SignUpEndpoint> logger)
     {
         var command = new SignUpCommand
         {
@@ -20,13 +23,10 @@ public class SignUpEndpoint : BaseEndpoint
             Password = request.Password
         };
 
-        var result = await commandHandler.ExecuteAsync(command, ctx.RequestAborted);
-
-        if (!result.IsSuccess)
-        {
-            return ErrorResponse(result.Errors);
-        }
-        
-        return Results.Ok();
+        return await ExecuteCommandAsync(
+            command,
+            async cmd => await commandHandler.ExecuteAsync(command, ctx.RequestAborted),
+            logger
+        );
     }
 }

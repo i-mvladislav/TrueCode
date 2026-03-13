@@ -1,4 +1,5 @@
 using Moq;
+using TrueCode.Core.Users;
 using TrueCode.UserService.Application.Currencies.Commands.AddFavoriteCurrency;
 using TrueCode.UserService.Domain.Dao;
 using TrueCode.UserService.Domain.Entities;
@@ -15,14 +16,17 @@ public class AddFavoriteCurrencyCommandHandlerTests
         clientMock.Setup(s => s.AddFavoriteCurrencyAsync(
                 It.IsAny<FavoriteCurrencyEntity>(),
                 It.IsAny<CancellationToken>()));
-        var client = clientMock.Object;
 
+        var userContextMock = new Mock<ICurrentUserContext>();
+        userContextMock.SetupGet(s => s.IsAuthenticated).Returns(true);
+        userContextMock.SetupGet(s => s.UserId).Returns(Guid.Empty.ToString());
+        userContextMock.SetupGet(s => s.Authorization).Returns("token");
+        
         var query = new AddFavoriteCurrencyCommand
         {
-            UserId = Guid.Empty,
             Name = "code",
         };
-        var sut = new AddFavoriteCurrencyCommandHandler(client);
+        var sut = new AddFavoriteCurrencyCommandHandler(clientMock.Object, userContextMock.Object);
         
         // Act
         var result = await sut.ExecuteAsync(query);
@@ -45,14 +49,17 @@ public class AddFavoriteCurrencyCommandHandlerTests
         clientMock.Setup(s => s.AddFavoriteCurrencyAsync(
             It.IsAny<FavoriteCurrencyEntity>(),
             It.IsAny<CancellationToken>()));
-        var client = clientMock.Object;
 
+        var userContextMock = new Mock<ICurrentUserContext>();
+        userContextMock.SetupGet(s => s.IsAuthenticated).Returns(true);
+        userContextMock.SetupGet(s => s.UserId).Returns(Guid.NewGuid().ToString());
+        userContextMock.SetupGet(s => s.Authorization).Returns("token");
+        
         var query = new AddFavoriteCurrencyCommand
         {
-            UserId = Guid.NewGuid(),
             Name = "",
         };
-        var sut = new AddFavoriteCurrencyCommandHandler(client);
+        var sut = new AddFavoriteCurrencyCommandHandler(clientMock.Object, userContextMock.Object);
         
         // Act
         var result = await sut.ExecuteAsync(query);

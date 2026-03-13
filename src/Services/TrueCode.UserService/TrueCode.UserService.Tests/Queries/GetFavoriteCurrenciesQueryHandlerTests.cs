@@ -1,4 +1,5 @@
 using Moq;
+using TrueCode.Core.Users;
 using TrueCode.UserService.Application.Currencies.Queries;
 using TrueCode.UserService.Domain.Dao;
 using TrueCode.UserService.Domain.Entities;
@@ -16,11 +17,13 @@ public class GetFavoriteCurrenciesQueryHandlerTests
             It.IsAny<Guid>(), 
             It.IsAny<CancellationToken>()));
         
-        var query = new GetFavoriteCurrenciesQuery
-        {
-            UserId = Guid.Empty,
-        };
-        var sut = new GetFavoriteCurrenciesQueryHandler(currencyStorageMock.Object);
+        var userContextMock = new Mock<ICurrentUserContext>();
+        userContextMock.SetupGet(s => s.IsAuthenticated).Returns(true);
+        userContextMock.SetupGet(s => s.UserId).Returns(Guid.Empty.ToString());
+        userContextMock.SetupGet(s => s.Authorization).Returns("token");
+        
+        var query = new GetFavoriteCurrenciesQuery();
+        var sut = new GetFavoriteCurrenciesQueryHandler(currencyStorageMock.Object, userContextMock.Object);
         
         // Act
         var result = await sut.ExecuteAsync(query);
@@ -47,11 +50,13 @@ public class GetFavoriteCurrenciesQueryHandlerTests
             It.IsAny<CancellationToken>()))
             .ReturnsAsync(favorites);
         
-        var query = new GetFavoriteCurrenciesQuery
-        {
-            UserId = Guid.NewGuid(),
-        };
-        var sut = new GetFavoriteCurrenciesQueryHandler(currencyStorageMock.Object);
+        var userContextMock = new Mock<ICurrentUserContext>();
+        userContextMock.SetupGet(s => s.IsAuthenticated).Returns(true);
+        userContextMock.SetupGet(s => s.UserId).Returns(Guid.NewGuid().ToString());
+        userContextMock.SetupGet(s => s.Authorization).Returns("token");
+        
+        var query = new GetFavoriteCurrenciesQuery();
+        var sut = new GetFavoriteCurrenciesQueryHandler(currencyStorageMock.Object, userContextMock.Object);
         
         // Act
         var result = await sut.ExecuteAsync(query);

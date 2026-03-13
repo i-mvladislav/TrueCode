@@ -1,4 +1,4 @@
-namespace TrueCode.FinanceService.Api.ResponseDtos;
+namespace TrueCode.FinanceService.Application.Currencies.Models;
 
 public sealed record Currency
 {

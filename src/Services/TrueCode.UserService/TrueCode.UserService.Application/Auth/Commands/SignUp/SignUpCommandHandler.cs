@@ -5,7 +5,7 @@ using TrueCode.UserService.Domain.Entities;
 
 namespace TrueCode.UserService.Application.Auth.Commands.SignUp;
 
-public sealed class SignUpCommandHandler(IUserStorage userStorage) : BaseCommandHandler<SignUpCommand>
+internal sealed class SignUpCommandHandler(IUserStorage userStorage) : BaseCommandHandler<SignUpCommand>
 {
     protected override async Task<CommandResult> ExecuteCoreAsync(SignUpCommand request, CancellationToken ct = default)
     {
