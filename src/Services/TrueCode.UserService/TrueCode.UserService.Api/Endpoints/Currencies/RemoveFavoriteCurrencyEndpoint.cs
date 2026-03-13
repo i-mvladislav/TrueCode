@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Mvc;
+using TrueCode.UserService.Api.RequestDtos;
 using TrueCode.UserService.Application.Currencies.Commands.RemoveFavoriteCurrency;
 
 namespace TrueCode.UserService.Api.Endpoints.Currencies;
@@ -7,12 +9,12 @@ public class RemoveFavoriteCurrencyEndpoint : BaseEndpoint
 {
     public override void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapDelete("api/currencies/favorites/{currencyCode}", HandleDelete);
+        app.MapDelete("api/currencies/favorites", HandleDelete);
     }
     
     private async Task<IResult> HandleDelete(HttpContext ctx,
-        string currencyCode,
-        RemoveFavoriteCurrencyCommandHandler commandHandler)
+        [FromBody] RemoveFavoriteCurrencyRequest request,
+        [FromServices] RemoveFavoriteCurrencyCommandHandler commandHandler)
     {
         if (ctx.User.Identity?.IsAuthenticated == false)
             return Results.Unauthorized();
@@ -22,7 +24,7 @@ public class RemoveFavoriteCurrencyEndpoint : BaseEndpoint
         var command = new RemoveFavoriteCurrencyCommand
         {
             UserId = new Guid(userId),
-            Name = currencyCode,
+            Name = request.Name,
         };
 
         var result = await commandHandler.ExecuteAsync(command, ctx.RequestAborted);
