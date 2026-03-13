@@ -1,4 +1,6 @@
+using System.Net;
 using Moq;
+using Refit;
 using TrueCode.FinanceService.Application.Currencies.Queries.GetCurrenciesByUser;
 using TrueCode.FinanceService.Domain.Dao;
 using TrueCode.FinanceService.Domain.Entities;
@@ -17,7 +19,7 @@ public class GetCurrenciesByUserQueryHandlerTests
             It.Is<Guid>(userId => userId == Guid.Empty),
             It.IsAny<string>(),
             It.IsAny<CancellationToken>()))
-            .ReturnsAsync(["AUD"]);
+            .ReturnsAsync(new ApiResponse<List<string>>(new HttpResponseMessage(HttpStatusCode.OK), ["Азербайджанский манат"], null!));
         
         var currencyStorageMock = new Mock<ICurrencyStorage>();
         currencyStorageMock.Setup(s => s.GetCurrenciesByCodesAsync(
@@ -53,7 +55,7 @@ public class GetCurrenciesByUserQueryHandlerTests
                 It.IsAny<Guid>(),
                 It.Is<string>(s => string.IsNullOrWhiteSpace(s)),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(["AUD"]);
+            .ReturnsAsync(new ApiResponse<List<string>>(new HttpResponseMessage(HttpStatusCode.OK), ["Азербайджанский манат"], null!));
         
         var currencyStorageMock = new Mock<ICurrencyStorage>();
         currencyStorageMock.Setup(s => s.GetCurrenciesByCodesAsync(
@@ -100,7 +102,7 @@ public class GetCurrenciesByUserQueryHandlerTests
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(favouriteCurrencies);
+            .ReturnsAsync(new ApiResponse<List<string>>(new HttpResponseMessage(HttpStatusCode.OK), favouriteCurrencies, null!));
         
         var currencyStorageMock = new Mock<ICurrencyStorage>();
         currencyStorageMock.Setup(s => s.GetCurrenciesByCodesAsync(
