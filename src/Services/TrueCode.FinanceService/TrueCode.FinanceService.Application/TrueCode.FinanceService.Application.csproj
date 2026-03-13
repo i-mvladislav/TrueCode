@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\TrueCode.UserService\TrueCode.UserService.HttpClients\TrueCode.UserService.HttpClients.csproj" />
+      <ProjectReference Include="..\TrueCode.FinanceService.Domain\TrueCode.FinanceService.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Currencies\Queries\" />
+    </ItemGroup>
+
+</Project>
