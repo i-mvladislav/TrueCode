@@ -1,8 +1,6 @@
-using TrueCode.Core.Entities;
+namespace TrueCode.FinanceService.Api.ResponseDtos;
 
-namespace TrueCode.FinanceService.Domain.Entities;
-
-public class CurrencyEntity : Entity
+public sealed record Currency
 {
     public string Id { get; set; } = null!;
     public string Name { get; set; } = null!;

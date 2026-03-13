@@ -14,13 +14,13 @@ namespace TrueCode.FinanceService.Infrastructure.Data.Migrations
                 name: "currency",
                 columns: table => new
                 {
-                    Code = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: false),
                     Rate = table.Column<decimal>(type: "numeric(18,6)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_currency", x => x.Code);
+                    table.PrimaryKey("PK_currency", x => x.Id);
                 });
         }
 

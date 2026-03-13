@@ -82,7 +82,7 @@ public class SignInCommandHandlerTests
         {
             Assert.That(result.IsSuccess, Is.False);
             Assert.That(result.Data, Is.Null);
-            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.That(result.Errors, Has.Count.EqualTo(2));
             Assert.That(result.Errors[0].Message, Is.EqualTo("Пароль не может быть пустым."));
         });
     }

@@ -9,7 +9,7 @@ public class ApplicationContext(DbContextOptions<ApplicationContext> options) : 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<CurrencyEntity>().HasKey(c => c.Code);
+        modelBuilder.Entity<CurrencyEntity>().HasKey(c => c.Id);
 
         modelBuilder.Entity<CurrencyEntity>()
             .Property(c => c.Name)

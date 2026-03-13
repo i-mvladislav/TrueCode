@@ -20,7 +20,7 @@ public class AddFavoriteCurrencyCommandHandlerTests
         var query = new AddFavoriteCurrencyCommand
         {
             UserId = Guid.Empty,
-            CurrencyCode = "code",
+            Name = "code",
         };
         var sut = new AddFavoriteCurrencyCommandHandler(client);
         
@@ -50,7 +50,7 @@ public class AddFavoriteCurrencyCommandHandlerTests
         var query = new AddFavoriteCurrencyCommand
         {
             UserId = Guid.NewGuid(),
-            CurrencyCode = "",
+            Name = "",
         };
         var sut = new AddFavoriteCurrencyCommandHandler(client);
         

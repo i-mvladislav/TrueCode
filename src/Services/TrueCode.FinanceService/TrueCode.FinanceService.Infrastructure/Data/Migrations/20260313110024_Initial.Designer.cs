@@ -11,7 +11,7 @@ using TrueCode.FinanceService.Infrastructure.Data;
 namespace TrueCode.FinanceService.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20260312184112_Initial")]
+    [Migration("20260313110024_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -26,7 +26,7 @@ namespace TrueCode.FinanceService.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("TrueCode.FinanceService.Domain.Entities.CurrencyEntity", b =>
                 {
-                    b.Property<string>("Code")
+                    b.Property<string>("Id")
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
@@ -36,7 +36,7 @@ namespace TrueCode.FinanceService.Infrastructure.Data.Migrations
                     b.Property<decimal>("Rate")
                         .HasColumnType("decimal(18,6)");
 
-                    b.HasKey("Code");
+                    b.HasKey("Id");
 
                     b.ToTable("currency", (string)null);
                 });

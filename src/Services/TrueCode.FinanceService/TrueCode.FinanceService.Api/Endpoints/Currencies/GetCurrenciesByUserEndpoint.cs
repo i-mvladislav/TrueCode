@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
+using TrueCode.FinanceService.Api.ResponseDtos;
 using TrueCode.FinanceService.Application.Currencies.Queries.GetCurrenciesByUser;
 using TrueCode.UserService.HttpClients;
 
@@ -34,7 +35,14 @@ public class GetCurrenciesByUserEndpoint : BaseEndpoint
         {
             return ErrorResponse(result.Errors);
         }
+
+        var response = result.Data!.Select(c => new Currency
+        {
+            Id = c.Id,
+            Name = c.Name,
+            Rate = c.Rate,
+        }).ToList();
         
-        return Results.Json(result.Data);
+        return Results.Json(response);
     }
 }

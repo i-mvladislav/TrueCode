@@ -23,7 +23,7 @@ namespace TrueCode.FinanceService.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("TrueCode.FinanceService.Domain.Entities.CurrencyEntity", b =>
                 {
-                    b.Property<string>("Code")
+                    b.Property<string>("Id")
                         .HasColumnType("text");
 
                     b.Property<string>("Name")
@@ -33,7 +33,7 @@ namespace TrueCode.FinanceService.Infrastructure.Data.Migrations
                     b.Property<decimal>("Rate")
                         .HasColumnType("decimal(18,6)");
 
-                    b.HasKey("Code");
+                    b.HasKey("Id");
 
                     b.ToTable("currency", (string)null);
                 });

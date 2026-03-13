@@ -1,5 +1,7 @@
 using Moq;
 using TrueCode.FinanceService.Application.Currencies.Queries.GetCurrenciesByUser;
+using TrueCode.FinanceService.Domain.Dao;
+using TrueCode.FinanceService.Domain.Entities;
 using TrueCode.UserService.HttpClients;
 
 namespace TrueCode.FinanceService.Tests.Queries;
@@ -16,14 +18,18 @@ public class GetCurrenciesByUserQueryHandlerTests
             It.IsAny<string>(),
             It.IsAny<CancellationToken>()))
             .ReturnsAsync(["AUD"]);
-        var client = clientMock.Object;
+        
+        var currencyStorageMock = new Mock<ICurrencyStorage>();
+        currencyStorageMock.Setup(s => s.GetCurrenciesByCodesAsync(
+            It.IsAny<IEnumerable<string>>(),
+            It.IsAny<CancellationToken>()));
 
         var query = new GetCurrenciesByUserQuery
         {
             UserId = Guid.Empty,
             JwtToken = "token",
         };
-        var sut = new GetCurrenciesByUserQueryHandler(client);
+        var sut = new GetCurrenciesByUserQueryHandler(clientMock.Object, currencyStorageMock.Object);
         
         // Act
         var result = await sut.ExecuteAsync(query);
@@ -48,14 +54,18 @@ public class GetCurrenciesByUserQueryHandlerTests
                 It.Is<string>(s => string.IsNullOrWhiteSpace(s)),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(["AUD"]);
-        var client = clientMock.Object;
-
+        
+        var currencyStorageMock = new Mock<ICurrencyStorage>();
+        currencyStorageMock.Setup(s => s.GetCurrenciesByCodesAsync(
+            It.IsAny<IEnumerable<string>>(),
+            It.IsAny<CancellationToken>()));
+        
         var query = new GetCurrenciesByUserQuery
         {
             UserId = Guid.NewGuid(),
             JwtToken = "",
         };
-        var sut = new GetCurrenciesByUserQueryHandler(client);
+        var sut = new GetCurrenciesByUserQueryHandler(clientMock.Object, currencyStorageMock.Object);
         
         // Act
         var result = await sut.ExecuteAsync(query);
@@ -71,25 +81,39 @@ public class GetCurrenciesByUserQueryHandlerTests
     }
 
     [Test]
-    public async Task _get_currencies_by_user_returns_currencies()
+    public async Task get_currencies_by_user_returns_currencies()
     {
         // Arrange
-        List<string> expected = ["AUD"];
+        List<string> favouriteCurrencies = ["AUD"];
+        List<CurrencyEntity> currencies =
+        [
+            new()
+            {
+                Id = "AUD",
+                Name = "Австралийский доллар",
+                Rate = 56.3353M
+            }
+        ];
         
         var clientMock = new Mock<ICurrenciesHttpClient>();
         clientMock.Setup(s => s.GetFavoriteCurrenciesAsync(
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(expected);
-        var client = clientMock.Object;
+            .ReturnsAsync(favouriteCurrencies);
+        
+        var currencyStorageMock = new Mock<ICurrencyStorage>();
+        currencyStorageMock.Setup(s => s.GetCurrenciesByCodesAsync(
+                It.IsAny<IEnumerable<string>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(currencies);
 
         var query = new GetCurrenciesByUserQuery
         {
             UserId = Guid.NewGuid(),
             JwtToken = "token",
         };
-        var sut = new GetCurrenciesByUserQueryHandler(client);
+        var sut = new GetCurrenciesByUserQueryHandler(clientMock.Object, currencyStorageMock.Object);
         
         // Act
         var result = await sut.ExecuteAsync(query);
@@ -100,7 +124,7 @@ public class GetCurrenciesByUserQueryHandlerTests
             Assert.That(result.IsSuccess, Is.True);
             Assert.That(result.Data, Is.Not.Null);
             Assert.That(result.Errors, Is.Empty);
-            Assert.That(result.Data, Is.EquivalentTo(expected));
+            Assert.That(result.Data, Is.EquivalentTo(currencies));
         });
     }
 }

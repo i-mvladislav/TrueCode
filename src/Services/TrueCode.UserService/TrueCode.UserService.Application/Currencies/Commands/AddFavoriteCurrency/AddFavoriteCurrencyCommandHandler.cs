@@ -14,7 +14,7 @@ public sealed class AddFavoriteCurrencyCommandHandler(ICurrencyStorage currencyS
         if (request.UserId == Guid.Empty)
             errors.Add(new Error("Некорректный пользователь."));
         
-        if (string.IsNullOrWhiteSpace(request.CurrencyCode))
+        if (string.IsNullOrWhiteSpace(request.Name))
             errors.Add(new Error("Код пустой."));
 
         if (errors.Count > 0)
@@ -23,7 +23,7 @@ public sealed class AddFavoriteCurrencyCommandHandler(ICurrencyStorage currencyS
         var entity = new FavoriteCurrencyEntity
         {
             UserId = request.UserId,
-            Code = request.CurrencyCode,
+            Code = request.Name,
         };
 
         await currencyStorage.AddFavoriteCurrencyAsync(entity, cancellationToken);

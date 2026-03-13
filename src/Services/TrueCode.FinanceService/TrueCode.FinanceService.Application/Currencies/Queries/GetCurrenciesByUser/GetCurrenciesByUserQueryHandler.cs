@@ -1,12 +1,14 @@
 using TrueCode.Core.Models;
 using TrueCode.Core.Queries;
+using TrueCode.FinanceService.Domain.Dao;
+using TrueCode.FinanceService.Domain.Entities;
 using TrueCode.UserService.HttpClients;
 
 namespace TrueCode.FinanceService.Application.Currencies.Queries.GetCurrenciesByUser;
 
-public class GetCurrenciesByUserQueryHandler(ICurrenciesHttpClient client) : BaseQueryHandler<GetCurrenciesByUserQuery, List<string>>
+public class GetCurrenciesByUserQueryHandler(ICurrenciesHttpClient client, ICurrencyStorage currencyStorage) : BaseQueryHandler<GetCurrenciesByUserQuery, List<CurrencyEntity>>
 {
-    protected override async Task<QueryResult<List<string>>> ExecuteCoreAsync(GetCurrenciesByUserQuery query, CancellationToken cancellationToken = default)
+    protected override async Task<QueryResult<List<CurrencyEntity>>> ExecuteCoreAsync(GetCurrenciesByUserQuery query, CancellationToken cancellationToken = default)
     {
         List<Error> errors = [];
         
@@ -17,10 +19,12 @@ public class GetCurrenciesByUserQueryHandler(ICurrenciesHttpClient client) : Bas
             errors.Add(new Error("Некорректный токен."));
         
         if (errors.Count > 0)
-            return QueryResult<List<string>>.Failure(errors);
+            return QueryResult<List<CurrencyEntity>>.Failure(errors);
         
-        var result = await client.GetFavoriteCurrenciesAsync(query.UserId, query.JwtToken, cancellationToken);
+        var userCurrenciesCodes = await client.GetFavoriteCurrenciesAsync(query.UserId, query.JwtToken, cancellationToken);
+
+        var result = await currencyStorage.GetCurrenciesByCodesAsync(userCurrenciesCodes, cancellationToken);
         
-        return QueryResult<List<string>>.Success(result);
+        return QueryResult<List<CurrencyEntity>>.Success(result);
     }
 }

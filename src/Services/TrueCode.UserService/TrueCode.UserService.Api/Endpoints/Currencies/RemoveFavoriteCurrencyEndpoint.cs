@@ -22,7 +22,7 @@ public class RemoveFavoriteCurrencyEndpoint : BaseEndpoint
         var command = new RemoveFavoriteCurrencyCommand
         {
             UserId = new Guid(userId),
-            CurrencyCode = currencyCode,
+            Name = currencyCode,
         };
 
         var result = await commandHandler.ExecuteAsync(command, ctx.RequestAborted);

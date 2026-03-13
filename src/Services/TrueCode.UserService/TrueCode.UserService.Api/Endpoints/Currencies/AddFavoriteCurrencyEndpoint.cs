@@ -23,7 +23,7 @@ public class AddFavoriteCurrencyEndpoint : BaseEndpoint
         var command = new AddFavoriteCurrencyCommand
         {
             UserId = new Guid(userId),
-            CurrencyCode = request.CurrencyCode,
+            Name = request.Name,
         };
 
         var result = await commandHandler.ExecuteAsync(command, ctx.RequestAborted);

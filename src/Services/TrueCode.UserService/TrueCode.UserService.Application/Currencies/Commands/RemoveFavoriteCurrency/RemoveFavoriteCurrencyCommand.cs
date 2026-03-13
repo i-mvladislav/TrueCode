@@ -3,5 +3,5 @@ namespace TrueCode.UserService.Application.Currencies.Commands.RemoveFavoriteCur
 public sealed record RemoveFavoriteCurrencyCommand
 {
     public required Guid UserId { get; init; }
-    public required string CurrencyCode { get; init; }
+    public required string Name { get; init; }
 }

@@ -20,7 +20,7 @@ public class RemoveFavoriteCurrencyComandHandlerTests
         var query = new RemoveFavoriteCurrencyCommand
         {
             UserId = Guid.Empty,
-            CurrencyCode = "code",
+            Name = "code",
         };
         var sut = new RemoveFavoriteCurrencyCommandHandler(client);
         
@@ -51,7 +51,7 @@ public class RemoveFavoriteCurrencyComandHandlerTests
         var query = new RemoveFavoriteCurrencyCommand
         {
             UserId = Guid.NewGuid(),
-            CurrencyCode = "",
+            Name = "",
         };
         var sut = new RemoveFavoriteCurrencyCommandHandler(client);
         

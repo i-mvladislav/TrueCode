@@ -16,7 +16,7 @@ public class CloneValutesJob(ICbrHttpClient client, ApplicationContext db) : IJo
         var entities = response.Valutes
             .Select(v => new CurrencyEntity
             {
-                Code = v.Id,
+                Id = v.Id,
                 Name = v.Name,
                 Rate = v.Rate,
             }).ToArray();

@@ -2,5 +2,5 @@ namespace TrueCode.UserService.Api.RequestDtos;
 
 public sealed record AddFavoriteCurrencyRequest
 {
-    public required string CurrencyCode { get; init; }
+    public required string Name { get; init; }
 }
