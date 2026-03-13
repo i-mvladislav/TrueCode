@@ -1,3 +1,4 @@
+using System.Net;
 using TrueCode.Core.Models;
 using TrueCode.Core.Queries;
 using TrueCode.FinanceService.Domain.Dao;
@@ -21,9 +22,13 @@ public class GetCurrenciesByUserQueryHandler(ICurrenciesHttpClient client, ICurr
         if (errors.Count > 0)
             return QueryResult<List<CurrencyEntity>>.Failure(errors);
         
-        var userCurrenciesCodes = await client.GetFavoriteCurrenciesAsync(query.UserId, query.JwtToken, cancellationToken);
-
-        var result = await currencyStorage.GetCurrenciesByCodesAsync(userCurrenciesCodes, cancellationToken);
+        var response = await client.GetFavoriteCurrenciesAsync(query.UserId, query.JwtToken, cancellationToken);
+        if (response.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            return QueryResult<List<CurrencyEntity>>.Failure([new Error("Вы не авторизованы.")]);
+        }
+        
+        var result = await currencyStorage.GetCurrenciesByCodesAsync(response.Content!, cancellationToken);
         
         return QueryResult<List<CurrencyEntity>>.Success(result);
     }
