@@ -2,6 +2,7 @@ using System.Text;
 using Carter;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using TrueCode.Core.Users;
 using TrueCode.UserService.Api.Middlewares;
 using TrueCode.UserService.Api.Security;
@@ -18,6 +19,23 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApiServices(this IServiceCollection services, IConfiguration configuration)
     {
+        services.AddEndpointsApiExplorer();
+        services.AddSwaggerGen(opts =>
+        {
+            opts.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
+            {
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT",
+                Description = "JWT Authorization header using the Bearer scheme.",
+            });
+            
+            opts.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+            {
+                [new OpenApiSecuritySchemeReference("bearer", document)] = []
+            });
+        });
+        
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserContext, CurrentUserContext>();
         services.AddAuth(configuration);
@@ -61,6 +79,12 @@ public static class DependencyInjection
     
     public static WebApplication UseApiServices(this WebApplication app)
     {
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+        
         app.UseAuthentication();
         app.UseAuthorization();
         
