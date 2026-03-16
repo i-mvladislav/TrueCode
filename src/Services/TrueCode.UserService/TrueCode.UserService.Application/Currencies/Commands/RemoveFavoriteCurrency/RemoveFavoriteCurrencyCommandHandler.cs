@@ -16,7 +16,7 @@ internal sealed class RemoveFavoriteCurrencyCommandHandler(ICurrencyStorage curr
             errors.Add(new Error("Пользователь не найден."));
         
         if (string.IsNullOrWhiteSpace(command.Name))
-            errors.Add(new Error("Код пустой."));
+            errors.Add(new Error("Имя валюты пустое."));
 
         var currencyEntity = await currencyStorage.GetFavoriteCurrencyAsync(userId, command.Name, cancellationToken);
         if (currencyEntity is null)

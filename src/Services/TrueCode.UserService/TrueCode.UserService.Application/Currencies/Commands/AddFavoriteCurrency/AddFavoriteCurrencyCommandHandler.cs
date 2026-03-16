@@ -16,7 +16,7 @@ internal sealed class AddFavoriteCurrencyCommandHandler(ICurrencyStorage currenc
             errors.Add(new Error("Некорректный пользователь."));
         
         if (string.IsNullOrWhiteSpace(request.Name))
-            errors.Add(new Error("Код пустой."));
+            errors.Add(new Error("Имя валюты пустое."));
 
         if (errors.Count > 0)
             return CommandResult.Failure(errors);

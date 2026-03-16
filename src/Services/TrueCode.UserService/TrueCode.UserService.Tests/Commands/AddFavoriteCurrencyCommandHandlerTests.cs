@@ -69,7 +69,7 @@ public class AddFavoriteCurrencyCommandHandlerTests
         {
             Assert.That(result.IsSuccess, Is.False);
             Assert.That(result.Errors, Has.Count.EqualTo(1));
-            Assert.That(result.Errors[0].Message, Is.EqualTo("Код пустой."));
+            Assert.That(result.Errors[0].Message, Is.EqualTo("Имя валюты пустое."));
             clientMock.Verify(s => s.AddFavoriteCurrencyAsync(It.IsAny<FavoriteCurrencyEntity>(), It.IsAny<CancellationToken>()), Times.Never);
         });
     }
