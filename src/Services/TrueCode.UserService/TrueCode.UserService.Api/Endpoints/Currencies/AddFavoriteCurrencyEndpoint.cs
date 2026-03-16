@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TrueCode.Core.Commands;
+using TrueCode.Core.Models;
 using TrueCode.Core.Users;
 using TrueCode.UserService.Api.RequestDtos;
 using TrueCode.UserService.Application.Currencies.Commands.AddFavoriteCurrency;
@@ -10,7 +11,11 @@ public class AddFavoriteCurrencyEndpoint : BaseEndpoint
 {
     public override void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPost("api/currencies/favorites", HandlePost);
+        app.MapPost("api/currencies/favorites", HandlePost)
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<IReadOnlyList<Error>>(StatusCodes.Status400BadRequest)
+            .WithSummary("Добавить любимую валюту по текущему пользователю");
     }
 
     private async Task<IResult> HandlePost(HttpContext ctx,

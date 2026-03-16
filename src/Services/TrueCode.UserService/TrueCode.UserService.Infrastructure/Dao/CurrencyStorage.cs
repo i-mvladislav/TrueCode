@@ -23,7 +23,14 @@ public sealed class CurrencyStorage(ApplicationContext db) : ICurrencyStorage
         return favoriteCurrencies;
     }
 
-    public async Task RemoveFavoriteCurrencyAsync(Guid userId, string currencyCode, CancellationToken cancellationToken = default)
+    public async Task<FavoriteCurrencyEntity?> GetFavoriteCurrencyAsync(Guid userId, string currencyName, CancellationToken cancellationToken = default)
+    {
+        return await db.FavouriteCurrencies
+            .AsNoTracking()
+            .FirstOrDefaultAsync(fc => fc.UserId == userId && fc.Code == currencyName, cancellationToken);
+    }
+
+    public async Task RemoveFavoriteCurrencyAsync(Guid userId, string currencyName, CancellationToken cancellationToken = default)
     {
         await db.FavouriteCurrencies.Where(fc => fc.UserId == userId).ExecuteDeleteAsync(cancellationToken);
     }

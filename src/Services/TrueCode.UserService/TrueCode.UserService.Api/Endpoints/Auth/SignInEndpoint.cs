@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TrueCode.Core.Commands;
+using TrueCode.Core.Models;
 using TrueCode.UserService.Api.RequestDtos;
 using TrueCode.UserService.Application.Auth.Commands.SignIn;
 using TrueCode.UserService.Application.Auth.Models;
@@ -10,7 +11,10 @@ public class SignInEndpoint : BaseEndpoint
 {
     public override void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapPost("api/auth/signIn", HandlePost);
+        app.MapPost("api/auth/signIn", HandlePost)
+            .Produces<JwtToken>(StatusCodes.Status200OK)
+            .Produces<IReadOnlyList<Error>>(StatusCodes.Status400BadRequest)
+            .WithSummary("Войти в аккаунт");
     }
     
     private async Task<IResult> HandlePost(HttpContext ctx,

@@ -1,4 +1,5 @@
 using System.Net;
+using TrueCode.Core.Enums;
 using TrueCode.Core.Models;
 using TrueCode.Core.Queries;
 using TrueCode.Core.Users;
@@ -32,7 +33,7 @@ internal class GetCurrenciesByUserQueryHandler(
         var response = await client.GetFavoriteCurrenciesAsync(userId, jwtToken, cancellationToken);
         if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
-            return QueryResult<List<Currency>>.Failure([new Error("Вы не авторизованы.")]);
+            return QueryResult<List<Currency>>.Failure([new Error("Вы не авторизованы.", ErrorType.Unauthorized)]);
         }
         
         var currenciesEntities = await currencyStorage.GetCurrenciesByCodesAsync(response.Content!, cancellationToken);

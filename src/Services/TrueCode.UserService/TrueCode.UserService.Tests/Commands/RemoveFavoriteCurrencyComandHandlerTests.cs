@@ -35,7 +35,7 @@ public class RemoveFavoriteCurrencyComandHandlerTests
         Assert.Multiple(() =>
         {
             Assert.That(result.IsSuccess, Is.False);
-            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.That(result.Errors, Has.Count.EqualTo(2));
             Assert.That(result.Errors[0].Message, Is.EqualTo("Пользователь не найден."));
             clientMock.Verify(s => s.RemoveFavoriteCurrencyAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
         });
@@ -69,7 +69,7 @@ public class RemoveFavoriteCurrencyComandHandlerTests
         Assert.Multiple(() =>
         {
             Assert.That(result.IsSuccess, Is.False);
-            Assert.That(result.Errors, Has.Count.EqualTo(1));
+            Assert.That(result.Errors, Has.Count.EqualTo(2));
             Assert.That(result.Errors[0].Message, Is.EqualTo("Код пустой."));
             clientMock.Verify(s => s.RemoveFavoriteCurrencyAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
         });

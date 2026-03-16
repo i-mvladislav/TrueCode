@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using TrueCode.Core.Models;
 using TrueCode.Core.Queries;
 using TrueCode.Core.Users;
 using TrueCode.FinanceService.Application.Currencies.Models;
@@ -10,7 +11,11 @@ public class GetCurrenciesByUserEndpoint : BaseEndpoint
 {
     public override void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapGet("api/users/currencies", HandleGet);
+        app.MapGet("api/users/currencies", HandleGet)
+            .Produces<List<Currency>>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<IReadOnlyList<Error>>(StatusCodes.Status400BadRequest)
+            .WithSummary("Получить курс валют по текущему пользователю");
     }
     
     private async Task<IResult> HandleGet(

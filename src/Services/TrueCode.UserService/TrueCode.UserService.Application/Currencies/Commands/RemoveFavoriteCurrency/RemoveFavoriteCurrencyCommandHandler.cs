@@ -1,4 +1,5 @@
 using TrueCode.Core.Commands;
+using TrueCode.Core.Enums;
 using TrueCode.Core.Models;
 using TrueCode.Core.Users;
 using TrueCode.UserService.Domain.Dao;
@@ -17,6 +18,10 @@ internal sealed class RemoveFavoriteCurrencyCommandHandler(ICurrencyStorage curr
         if (string.IsNullOrWhiteSpace(command.Name))
             errors.Add(new Error("Код пустой."));
 
+        var currencyEntity = await currencyStorage.GetFavoriteCurrencyAsync(userId, command.Name, cancellationToken);
+        if (currencyEntity is null)
+            errors.Add(new Error("Не найдена любимая валюта.", ErrorType.NotFound));
+        
         if (errors.Count > 0)
             return CommandResult.Failure(errors);
         

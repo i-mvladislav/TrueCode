@@ -6,5 +6,6 @@ public interface ICurrencyStorage
 {
     public Task AddFavoriteCurrencyAsync(FavoriteCurrencyEntity entity, CancellationToken cancellationToken = default);
     public Task<List<FavoriteCurrencyEntity>> GetFavoriteCurrenciesAsync(Guid userId, CancellationToken cancellationToken = default);
-    public Task RemoveFavoriteCurrencyAsync(Guid userId, string currencyCode, CancellationToken cancellationToken = default);
+    public Task<FavoriteCurrencyEntity?> GetFavoriteCurrencyAsync(Guid userId, string currencyName, CancellationToken cancellationToken = default);
+    public Task RemoveFavoriteCurrencyAsync(Guid userId, string currencyName, CancellationToken cancellationToken = default);
 }

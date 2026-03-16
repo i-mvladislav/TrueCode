@@ -24,6 +24,9 @@ public class SignOutEndpoint(JwtBlacklistService blacklistService) : BaseEndpoin
             }
 
             return Results.NoContent();
-        });
+        })
+        .Produces(StatusCodes.Status200OK)
+        .Produces(StatusCodes.Status204NoContent)
+        .WithSummary("Выйти из аккаунта");
     }
 }

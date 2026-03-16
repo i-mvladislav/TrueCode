@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TrueCode.Core.Commands;
+using TrueCode.Core.Models;
 using TrueCode.Core.Users;
 using TrueCode.UserService.Api.RequestDtos;
 using TrueCode.UserService.Application.Currencies.Commands.RemoveFavoriteCurrency;
@@ -10,7 +11,12 @@ public class RemoveFavoriteCurrencyEndpoint : BaseEndpoint
 {
     public override void AddRoutes(IEndpointRouteBuilder app)
     {
-        app.MapDelete("api/currencies/favorites", HandleDelete);
+        app.MapDelete("api/currencies/favorites", HandleDelete)
+            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status401Unauthorized)
+            .Produces<IReadOnlyList<Error>>(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status404NotFound)
+            .WithSummary("Удалить любимую валюту по текущему пользователю");
     }
     
     private async Task<IResult> HandleDelete(HttpContext ctx,
