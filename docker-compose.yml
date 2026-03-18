@@ -1,0 +1,32 @@
+services:
+    truecode_user_db:
+        container_name: truecode.user.db
+        image: postgres
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=12345678
+            - POSTGRES_DB=truecode-user-db
+        restart: always
+        ports:
+            - "5001:5432"
+        volumes:
+            - "postgres_user_db:/var/lib/postgresql/"
+
+    truecode_finance_db:
+        container_name: truecode.finance.db
+        image: postgres
+        environment:
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=12345678
+            - POSTGRES_DB=truecode-finance-db
+        restart: always
+        ports:
+            - "5002:5432"
+        volumes:
+            - "postgres_finance_db:/var/lib/postgresql/"
+
+volumes:
+    postgres_user_db:
+        driver: local
+    postgres_finance_db:
+        driver: local
